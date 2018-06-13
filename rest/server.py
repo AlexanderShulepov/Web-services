@@ -1,26 +1,21 @@
 from flask import Flask, jsonify, abort,make_response, request,Response
 import json
-import psycopg2
+
 import postgresql
 app = Flask(__name__)
 
-conn_string = "host='localhost' dbname='films' user='postgres' password='842839'"
-conn = psycopg2.connect(conn_string)
-conn.set_client_encoding('UNICODE')
-cursor = conn.cursor()
+connector = postgresql.open('pq://postgres:842839@localhost:5432/films')
 
-def query(query):
-	cursor.execute("SELECT "+query)
-	records = cursor.fetchall()
-	return records[0][0]
+def query(query):	#postgresq query
+	return json.loads(connector.query("select "+ query)[0][0])
+
 def jsonit(data):
 	return json.dumps(data,ensure_ascii=False)
 
-##################################################################################################################
+
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
-
 @app.errorhandler(400)
 def not_found(error):
     return make_response(jsonify({'error': 'Bad request'}), 400)
@@ -28,19 +23,11 @@ def not_found(error):
 
 @app.route('/api/studios', methods=['GET'])
 def get_studios():
-    print('11111111111111111')
-    args=request.args
-    studios=None
-    if 'order' in args:
-        studios=query("get_ord_studios('{}')".format(args['order']))
-    elif 'filter' in args:
-        studios=query("get_filter_studios('{}')".format(args['filter']))
-    elif 'pagination' in args:
-        studios=query("get_page_studios('{}')".format(args['pagination']))
-    else:
-        studios=query("get_studios()")
-
+    studios=query("get_studios()")
+    print('')
+    print(studios)
     return  make_response(jsonit(studios),200)
+#############################
 #############################
 
 @app.route('/api/studios/<int:id>', methods=['GET'])
@@ -56,7 +43,6 @@ def get_studio(id):
 def set_studio():
     if not request.json :
          abort(400)
-    try:
     studio=query("add_studio('{}','{}','{}')".format( str(request.json['name']),str(request.json['country']),str(request.json['city']) ))
 
     return  make_response(jsonit(studio),200)

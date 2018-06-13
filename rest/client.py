@@ -1,5 +1,6 @@
 import requests as r
 import json
+import time
 URL='http://127.0.0.1:8001/api/studios'
 def bodrder():
 	print("\n-----------------------")
@@ -10,7 +11,7 @@ print(r.get(URL).text)
 bodrder()
 
 print('Просмотр конкретной записи(успешно)')
-print(r.get(URL+'7').text)
+print(r.get(URL+'/7').text)
 bodrder()
 
 print('Просмотр конкретной записи(неуспешно-такого пользователя нет)')
