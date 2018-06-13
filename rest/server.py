@@ -16,17 +16,30 @@ def query(query):
 def jsonit(data):
 	return json.dumps(data,ensure_ascii=False)
 
-
+##################################################################################################################
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
+
+@app.errorhandler(400)
+def not_found(error):
+    return make_response(jsonify({'error': 'Bad request'}), 400)
 #############################
 
 @app.route('/api/studios', methods=['GET'])
 def get_studios():
-    studios=query("get_studios()")
-    print('')
-    print(studios)
+    print('11111111111111111')
+    args=request.args
+    studios=None
+    if 'order' in args:
+        studios=query("get_ord_studios('{}')".format(args['order']))
+    elif 'filter' in args:
+        studios=query("get_filter_studios('{}')".format(args['filter']))
+    elif 'pagination' in args:
+        studios=query("get_page_studios('{}')".format(args['pagination']))
+    else:
+        studios=query("get_studios()")
+
     return  make_response(jsonit(studios),200)
 #############################
 
@@ -43,6 +56,7 @@ def get_studio(id):
 def set_studio():
     if not request.json :
          abort(400)
+    try:
     studio=query("add_studio('{}','{}','{}')".format( str(request.json['name']),str(request.json['country']),str(request.json['city']) ))
 
     return  make_response(jsonit(studio),200)
@@ -69,6 +83,11 @@ def delete_studio(id):
         return  make_response(json.dumps({"error":"tables are referenced "}),406)
     return  make_response(jsonit(studio),201)
 #############################
+
+@app.route('/api/studios/avg_rate', methods=['GET'])
+def avg_rate():
+    studios=query("avg_rate_studios()")
+    return  make_response(jsonit(studios),200)
 
 
 if __name__ == '__main__':
