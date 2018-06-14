@@ -11,7 +11,7 @@ BEGIN
 END
 $$;
 
-select   get_studio(10);
+select   get_studio(7);
 
 --------------------Пагинация
 CREATE OR REPLACE FUNCTION get_page_studios(page int) RETURNS json LANGUAGE plpgsql AS $$
@@ -109,4 +109,23 @@ END
 $$;
 select update_studio (1111,'Brazzzzzers',Null,Null)
 
-select * from rating r left join film f on r.ridfilm=f.fidfilm left join cinemastudio c on c.cidcinemastudio=f.fidcinemastudio group by f.fmoney
+--------------------
+CREATE OR REPLACE FUNCTION avg_rate_studios() RETURNS json LANGUAGE plpgsql AS $$
+BEGIN
+return (select array_to_json(array_agg(row_to_json(t)))
+		from (SELECT AVG(ROcenka) AS "Средня оценка", CName AS "Студия" FROM Rating JOIN Film ON RIdFilm = FIdFilm JOIN Cinemastudio ON FIdCinemastudio = CIdCinemastudio 
+GROUP BY CName ORDER BY AVG(ROcenka)) t);
+		
+END
+$$;
+select avg_rate_studios ()
+
+
+
+CREATE OR REPLACE FUNCTION top_actions() RETURNS json LANGUAGE plpgsql AS $$
+BEGIN
+return (select array_to_json(array_agg(row_to_json(t)))
+		from ( SELECT  SUM(FMoney) AS "Сборы" FROM Film WHERE FJanr='Боевик' AND FYear=2007  ) t);
+END
+$$;
+select top_actions()
