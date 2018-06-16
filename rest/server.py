@@ -23,9 +23,16 @@ def not_found(error):
 
 @app.route('/api/studios', methods=['GET'])
 def get_studios():
-    studios=query("get_studios()")
-    print('')
-    print(studios)
+    args=request.args
+    studios=None
+    if 'order' in args:
+        studios=query("get_ord_studios('{}')".format(args['order']))
+    elif 'filter' in args:
+        studios=query("get_filter_studios('{}')".format(args['filter']))
+    elif 'pagination' in args:
+        studios=query("get_page_studios('{}')".format(args['pagination']))
+    else:
+        studios=query("get_studios()")
     return  make_response(jsonit(studios),200)
 #############################
 #############################

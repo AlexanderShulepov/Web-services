@@ -43,7 +43,7 @@ print(r.post(URL).text)
 bodrder()
 
 print('Добавление студии(всё хорошо)')
-print(r.post(URL, json={'name':'5','country':'5','city':'5'}).text)
+print(r.post(URL, json={'name':'9898','country':'5','city':'5'}).text)
 bodrder()
 
 print('Обновление записи')
